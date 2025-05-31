@@ -1,8 +1,4 @@
-cmake_minimum_required(VERSION 3.1)
-
-if(POLICY CMP0077)
-    cmake_policy(SET CMP0077 NEW)
-endif()
+cmake_minimum_required(VERSION 3.9...3.31)
 
 option(BUILD_DEPS "Builds aws common runtime dependencies as part of build. Turn off if you want to control your dependency chain." ON)
 option(BYO_CRYPTO "Don't build a tls implementation or link against a crypto interface. This feature is only for unix builds currently" OFF)
@@ -30,24 +26,7 @@ project("aws-crt-cpp"
     VERSION ${SIMPLE_VERSION})
 
 include(CTest)
-
-if(DEFINED CMAKE_PREFIX_PATH)
-    file(TO_CMAKE_PATH "${CMAKE_PREFIX_PATH}" CMAKE_PREFIX_PATH)
-endif()
-
-if(DEFINED CMAKE_INSTALL_PREFIX)
-    file(TO_CMAKE_PATH "${CMAKE_INSTALL_PREFIX}" CMAKE_INSTALL_PREFIX)
-endif()
-
-if(UNIX AND NOT APPLE)
-    include(GNUInstallDirs)
-elseif(NOT DEFINED CMAKE_INSTALL_LIBDIR)
-    set(CMAKE_INSTALL_LIBDIR "lib")
-endif()
-
-if(${CMAKE_INSTALL_LIBDIR} STREQUAL "lib64")
-    set(FIND_LIBRARY_USE_LIB64_PATHS true)
-endif()
+include(GNUInstallDirs)
 
 if(NOT CMAKE_CXX_STANDARD)
     set(CMAKE_CXX_STANDARD 11)
@@ -65,13 +44,6 @@ set(GENERATED_INCLUDE_DIR "${GENERATED_ROOT_DIR}/include")
 set(GENERATED_CONFIG_HEADER "${GENERATED_INCLUDE_DIR}/aws/crt/Config.h")
 configure_file(include/aws/crt/Config.h.in ${GENERATED_CONFIG_HEADER} @ONLY)
 
-# This is required in order to append /lib/cmake to each element in CMAKE_PREFIX_PATH
-set(AWS_MODULE_DIR "/${CMAKE_INSTALL_LIBDIR}/cmake")
-string(REPLACE ";" "${AWS_MODULE_DIR};" AWS_MODULE_PATH "${CMAKE_PREFIX_PATH}${AWS_MODULE_DIR}")
-
-# Append that generated list to the module search path
-list(APPEND CMAKE_MODULE_PATH ${AWS_MODULE_PATH})
-
 if(BUILD_DEPS)
     list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/crt/aws-c-common/cmake")
 
@@ -84,35 +56,36 @@ if(BUILD_DEPS)
 
     if(UNIX AND NOT APPLE AND NOT BYO_CRYPTO)
         if(NOT USE_OPENSSL)
-            set(DISABLE_PERL ON CACHE BOOL "Disable Perl for AWS-LC.")
-            set(DISABLE_GO ON CACHE BOOL "Disable Go for AWS-LC.")
-            set(BUILD_LIBSSL OFF CACHE BOOL "Build libssl for AWS-LC.")
+            include(AwsPrebuildDependency)
+
+            set(AWSLC_CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
 
             # temporarily disable certain warnings as errors for the aws-lc build
-            set(OLD_CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
-
             if(NOT MSVC)
                 check_c_compiler_flag(-Wno-stringop-overflow HAS_WNO_STRINGOP_OVERFLOW)
 
                 if(HAS_WNO_STRINGOP_OVERFLOW)
-                    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-stringop-overflow")
+                    set(AWSLC_CMAKE_C_FLAGS "${AWSLC_CMAKE_C_FLAGS} -Wno-stringop-overflow")
                 endif()
 
                 check_c_compiler_flag(-Wno-array-parameter HAS_WNO_ARRAY_PARAMETER)
 
                 if(HAS_WNO_ARRAY_PARAMETER)
-                    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-array-parameter")
+                    set(AWSLC_CMAKE_C_FLAGS "${AWSLC_CMAKE_C_FLAGS} -Wno-array-parameter")
                 endif()
             endif()
 
-            add_subdirectory(crt/aws-lc)
-
-            # restore previous build flags
-            set(CMAKE_C_FLAGS "${OLD_CMAKE_C_FLAGS}")
-
-            set(SEARCH_LIBCRYPTO OFF CACHE BOOL "Let S2N use libcrypto from AWS-LC.")
-        else()
-            set(SEARCH_LIBCRYPTO ON CACHE BOOL "Let S2N search libcrypto in the system.")
+            # s2n-tls uses libcrypto during its configuration, so we need to prebuild aws-lc.
+            aws_prebuild_dependency(
+                DEPENDENCY_NAME AWSLC
+                SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/crt/aws-lc
+                CMAKE_ARGUMENTS
+                    -DDISABLE_GO=ON
+                    -DDISABLE_PERL=ON
+                    -DBUILD_LIBSSL=OFF
+                    -DBUILD_TESTING=OFF
+                    -DCMAKE_C_FLAGS=${AWSLC_CMAKE_C_FLAGS}
+            )
         endif()
 
         set(UNSAFE_TREAT_WARNINGS_AS_ERRORS OFF CACHE BOOL "Disable warnings-as-errors when building S2N")
@@ -153,6 +126,9 @@ if (NOT TARGET aws-c-compression)
 endif()
 set(BUILD_TESTING ${BUILD_TESTING_PREV})
 else()
+    # this is required so we can use aws-c-common's CMake modules
+    find_package(aws-c-common REQUIRED)
+
     include(AwsFindPackage)
     set(IN_SOURCE_BUILD OFF)
 endif()
@@ -318,6 +294,23 @@ endif()
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD ${CMAKE_CXX_STANDARD})
 
+# Hide symbols by default
+# Except where it causes problems, and the situation is weird enough that it's not worth investigating further.
+#
+# We've seen people set _GLIBCXX_USE_CXX11_ABI=0 which forces GCC to use it's pre-C++11 string implementation,
+# which leads to crashes on shared-lib builds. Search every variant of CXX_FLAGS to see if it's set.
+string(FIND "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_DEBUG} ${CMAKE_CXX_FLAGS_RELEASE} ${CMAKE_CXX_FLAGS_RELWITHDEBINFO} ${CMAKE_CXX_FLAGS_MINSIZEREL}"
+       "-D_GLIBCXX_USE_CXX11_ABI=0" found_ancient_abi_flag)
+if(found_ancient_abi_flag GREATER -1)
+    message(WARNING "_GLIBCXX_USE_CXX11_ABI=0 is set. Making all symbols visible to prevent weird crashes")
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS "5.0")
+    # Ancient GCC leads to crashes in shared-lib builds
+    # see: https://github.com/awslabs/aws-crt-cpp/pull/675
+    message(WARNING "Ancient compiler (${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}). Making all symbols visible to prevent weird crashes")
+else()
+    set_target_properties(${PROJECT_NAME} PROPERTIES CXX_VISIBILITY_PRESET hidden VISIBILITY_INLINES_HIDDEN ON)
+endif()
+
 aws_prepare_symbol_visibility_args(${PROJECT_NAME} "AWS_CRT_CPP")
 
 # set runtime library
@@ -360,23 +353,23 @@ aws_add_sanitizers(${PROJECT_NAME})
 
 target_link_libraries(${PROJECT_NAME} PUBLIC ${DEP_AWS_LIBS})
 
-install(FILES ${AWS_CRT_HEADERS} DESTINATION "include/aws/crt" COMPONENT Development)
-install(FILES ${AWS_CRT_AUTH_HEADERS} DESTINATION "include/aws/crt/auth" COMPONENT Development)
-install(FILES ${AWS_CRT_CHECKSUM_HEADERS} DESTINATION "include/aws/crt/crypto" COMPONENT Development)
-install(FILES ${AWS_CRT_CRYPTO_HEADERS} DESTINATION "include/aws/crt/crypto" COMPONENT Development)
-install(FILES ${AWS_CRT_IO_HEADERS} DESTINATION "include/aws/crt/io" COMPONENT Development)
-install(FILES ${AWS_CRT_IOT_HEADERS} DESTINATION "include/aws/iot" COMPONENT Development)
-install(FILES ${AWS_CRT_MQTT_HEADERS} DESTINATION "include/aws/crt/mqtt" COMPONENT Development)
-install(FILES ${AWS_CRT_HTTP_HEADERS} DESTINATION "include/aws/crt/http" COMPONENT Development)
-install(FILES ${AWS_CRT_ENDPOINT_HEADERS} DESTINATION "include/aws/crt/endpoints" COMPONENT Development)
-install(FILES ${AWS_CRT_CBOR_HEADERS} DESTINATION "include/aws/crt/cbor" COMPONENT Development)
+install(FILES ${AWS_CRT_HEADERS} DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/aws/crt" COMPONENT Development)
+install(FILES ${AWS_CRT_AUTH_HEADERS} DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/aws/crt/auth" COMPONENT Development)
+install(FILES ${AWS_CRT_CHECKSUM_HEADERS} DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/aws/crt/checksum" COMPONENT Development)
+install(FILES ${AWS_CRT_CRYPTO_HEADERS} DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/aws/crt/crypto" COMPONENT Development)
+install(FILES ${AWS_CRT_IO_HEADERS} DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/aws/crt/io" COMPONENT Development)
+install(FILES ${AWS_CRT_IOT_HEADERS} DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/aws/iot" COMPONENT Development)
+install(FILES ${AWS_CRT_MQTT_HEADERS} DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/aws/crt/mqtt" COMPONENT Development)
+install(FILES ${AWS_CRT_HTTP_HEADERS} DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/aws/crt/http" COMPONENT Development)
+install(FILES ${AWS_CRT_ENDPOINT_HEADERS} DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/aws/crt/endpoints" COMPONENT Development)
+install(FILES ${AWS_CRT_CBOR_HEADERS} DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/aws/crt/cbor" COMPONENT Development)
 
 install(
     TARGETS ${PROJECT_NAME}
     EXPORT ${PROJECT_NAME}-targets
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT Development
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT Development
-    RUNTIME DESTINATION bin COMPONENT Runtime
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT Runtime
 )
 
 if(BUILD_SHARED_LIBS)
@@ -386,7 +379,7 @@ else()
 endif()
 
 install(EXPORT "${PROJECT_NAME}-targets"
-    DESTINATION "${CMAKE_INSTALL_LIBDIR}/${PROJECT_NAME}/cmake/${TARGET_DIR}"
+    DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}/${TARGET_DIR}"
     NAMESPACE AWS::
     COMPONENT Development)
 
@@ -402,11 +395,11 @@ write_basic_package_version_file(
 )
 
 install(FILES "${GENERATED_ROOT_DIR}/${PROJECT_NAME}-config.cmake"
-    DESTINATION "${CMAKE_INSTALL_LIBDIR}/${PROJECT_NAME}/cmake/"
+    DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}/"
     COMPONENT Development)
 
 install(FILES "${GENERATED_ROOT_DIR}/${PROJECT_NAME}-config-version.cmake"
-    DESTINATION "${CMAKE_INSTALL_LIBDIR}/${PROJECT_NAME}/cmake/"
+    DESTINATION "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}/"
     COMPONENT Development)
 
 if(NOT CMAKE_CROSSCOMPILING)

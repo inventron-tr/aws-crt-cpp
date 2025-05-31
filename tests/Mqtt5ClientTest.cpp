@@ -96,10 +96,11 @@ static int s_TestMqtt5NewClientFull(Aws::Crt::Allocator *allocator, void *)
     // Setup will
     const Aws::Crt::String TEST_TOPIC = "test/MQTT5_Binding_CPP/s_TestMqtt5NewClientFull";
     ByteBuf will_payload = Aws::Crt::ByteBufFromCString("Will Test");
-    std::shared_ptr<Mqtt5::PublishPacket> will = std::make_shared<Mqtt5::PublishPacket>(
-        TEST_TOPIC, ByteCursorFromByteBuf(will_payload), Mqtt5::QOS::AWS_MQTT5_QOS_AT_LEAST_ONCE, allocator);
+    std::shared_ptr<Mqtt5::PublishPacket> will = Aws::Crt::MakeShared<Mqtt5::PublishPacket>(
+        allocator, TEST_TOPIC, ByteCursorFromByteBuf(will_payload), Mqtt5::QOS::AWS_MQTT5_QOS_AT_LEAST_ONCE, allocator);
 
-    std::shared_ptr<Aws::Crt::Mqtt5::ConnectPacket> packetConnect = std::make_shared<Aws::Crt::Mqtt5::ConnectPacket>();
+    std::shared_ptr<Aws::Crt::Mqtt5::ConnectPacket> packetConnect =
+        Aws::Crt::MakeShared<Aws::Crt::Mqtt5::ConnectPacket>(allocator);
     packetConnect->WithClientId("s_TestMqtt5DirectConnectionFull" + Aws::Crt::UUID().ToString())
         .WithKeepAliveIntervalSec(1000)
         .WithMaximumPacketSizeBytes(1000L)
@@ -530,7 +531,8 @@ static int s_TestMqtt5DirectConnectionWithBasicAuth(Aws::Crt::Allocator *allocat
     mqtt5Options.WithHostName(mqtt5TestVars.m_hostname_string);
     mqtt5Options.WithPort(mqtt5TestVars.m_port_value);
 
-    std::shared_ptr<Aws::Crt::Mqtt5::ConnectPacket> packetConnect = std::make_shared<Aws::Crt::Mqtt5::ConnectPacket>();
+    std::shared_ptr<Aws::Crt::Mqtt5::ConnectPacket> packetConnect =
+        Aws::Crt::MakeShared<Aws::Crt::Mqtt5::ConnectPacket>(allocator);
     packetConnect->WithUserName(mqtt5TestVars.m_username_string);
     packetConnect->WithPassword(mqtt5TestVars.m_password_cursor);
     mqtt5Options.WithConnectOptions(packetConnect);
@@ -726,10 +728,11 @@ static int s_TestMqtt5DirectConnectionFull(Aws::Crt::Allocator *allocator, void 
     const Aws::Crt::String TEST_TOPIC =
         "test/MQTT5_Binding_CPP/s_TestMqtt5DirectConnectionFull" + Aws::Crt::UUID().ToString();
     ByteBuf will_payload = Aws::Crt::ByteBufFromCString("Will Test");
-    std::shared_ptr<Mqtt5::PublishPacket> will = std::make_shared<Mqtt5::PublishPacket>(
-        TEST_TOPIC, ByteCursorFromByteBuf(will_payload), Mqtt5::QOS::AWS_MQTT5_QOS_AT_LEAST_ONCE, allocator);
+    std::shared_ptr<Mqtt5::PublishPacket> will = Aws::Crt::MakeShared<Mqtt5::PublishPacket>(
+        allocator, TEST_TOPIC, ByteCursorFromByteBuf(will_payload), Mqtt5::QOS::AWS_MQTT5_QOS_AT_LEAST_ONCE, allocator);
 
-    std::shared_ptr<Aws::Crt::Mqtt5::ConnectPacket> packetConnect = std::make_shared<Aws::Crt::Mqtt5::ConnectPacket>();
+    std::shared_ptr<Aws::Crt::Mqtt5::ConnectPacket> packetConnect =
+        Aws::Crt::MakeShared<Aws::Crt::Mqtt5::ConnectPacket>(allocator);
     packetConnect->WithClientId("s_TestMqtt5DirectConnectionFull" + Aws::Crt::UUID().ToString())
         .WithKeepAliveIntervalSec(1000)
         .WithMaximumPacketSizeBytes(1000L)
@@ -850,7 +853,8 @@ static int s_TestMqtt5WSConnectionWithBasicAuth(Aws::Crt::Allocator *allocator, 
     mqtt5Options.WithHostName(mqtt5TestVars.m_hostname_string);
     mqtt5Options.WithPort(mqtt5TestVars.m_port_value);
 
-    std::shared_ptr<Aws::Crt::Mqtt5::ConnectPacket> packetConnect = std::make_shared<Aws::Crt::Mqtt5::ConnectPacket>();
+    std::shared_ptr<Aws::Crt::Mqtt5::ConnectPacket> packetConnect =
+        Aws::Crt::MakeShared<Aws::Crt::Mqtt5::ConnectPacket>(allocator);
     packetConnect->WithUserName(mqtt5TestVars.m_username_string);
     packetConnect->WithPassword(mqtt5TestVars.m_password_cursor);
     mqtt5Options.WithConnectOptions(packetConnect);
@@ -1134,10 +1138,11 @@ static int s_TestMqtt5WSConnectionFull(Aws::Crt::Allocator *allocator, void *)
     const Aws::Crt::String TEST_TOPIC =
         "test/MQTT5_Binding_CPP/s_TestMqtt5WSConnectionFull" + Aws::Crt::UUID().ToString();
     ByteBuf will_payload = Aws::Crt::ByteBufFromCString("Will Test");
-    std::shared_ptr<Mqtt5::PublishPacket> will = std::make_shared<Mqtt5::PublishPacket>(
-        TEST_TOPIC, ByteCursorFromByteBuf(will_payload), Mqtt5::QOS::AWS_MQTT5_QOS_AT_LEAST_ONCE, allocator);
+    std::shared_ptr<Mqtt5::PublishPacket> will = Aws::Crt::MakeShared<Mqtt5::PublishPacket>(
+        allocator, TEST_TOPIC, ByteCursorFromByteBuf(will_payload), Mqtt5::QOS::AWS_MQTT5_QOS_AT_LEAST_ONCE, allocator);
 
-    std::shared_ptr<Aws::Crt::Mqtt5::ConnectPacket> packetConnect = std::make_shared<Aws::Crt::Mqtt5::ConnectPacket>();
+    std::shared_ptr<Aws::Crt::Mqtt5::ConnectPacket> packetConnect =
+        Aws::Crt::MakeShared<Aws::Crt::Mqtt5::ConnectPacket>(allocator);
     packetConnect->WithClientId("s_TestMqtt5WSConnectionFull" + Aws::Crt::UUID().ToString())
         .WithKeepAliveIntervalSec(1000)
         .WithMaximumPacketSizeBytes(1000L)
@@ -1394,7 +1399,8 @@ static int s_TestMqtt5IncorrectBasicAuth(Aws::Crt::Allocator *allocator, void *)
     mqtt5Options.WithHostName(mqtt5TestVars.m_hostname_string);
     mqtt5Options.WithPort(mqtt5TestVars.m_port_value);
 
-    std::shared_ptr<Aws::Crt::Mqtt5::ConnectPacket> packetConnect = std::make_shared<Aws::Crt::Mqtt5::ConnectPacket>();
+    std::shared_ptr<Aws::Crt::Mqtt5::ConnectPacket> packetConnect =
+        Aws::Crt::MakeShared<Aws::Crt::Mqtt5::ConnectPacket>(allocator);
     packetConnect->WithUserName("WRONG_USERNAME");
     packetConnect->WithPassword(ByteCursorFromCString("WRONG_PASSWORD"));
     mqtt5Options.WithConnectOptions(packetConnect);
@@ -1478,7 +1484,8 @@ static int s_TestMqtt5DoubleClientIDFailure(Aws::Crt::Allocator *allocator, void
     mqtt5Options.WithHostName(mqtt5TestVars.m_hostname_string);
     mqtt5Options.WithPort(mqtt5TestVars.m_port_value);
 
-    std::shared_ptr<Aws::Crt::Mqtt5::ConnectPacket> packetConnect = std::make_shared<Aws::Crt::Mqtt5::ConnectPacket>();
+    std::shared_ptr<Aws::Crt::Mqtt5::ConnectPacket> packetConnect =
+        Aws::Crt::MakeShared<Aws::Crt::Mqtt5::ConnectPacket>(allocator);
     packetConnect->WithClientId("TestMqtt5DoubleClientIDFailure" + Aws::Crt::UUID().ToString());
     mqtt5Options.WithConnectOptions(packetConnect);
 
@@ -1558,7 +1565,8 @@ static int s_TestMqtt5NegotiatedSettingsHappy(Aws::Crt::Allocator *allocator, vo
     mqtt5Options.WithHostName(mqtt5TestVars.m_hostname_string);
     mqtt5Options.WithPort(mqtt5TestVars.m_port_value);
 
-    std::shared_ptr<Aws::Crt::Mqtt5::ConnectPacket> packetConnect = std::make_shared<Aws::Crt::Mqtt5::ConnectPacket>();
+    std::shared_ptr<Aws::Crt::Mqtt5::ConnectPacket> packetConnect =
+        Aws::Crt::MakeShared<Aws::Crt::Mqtt5::ConnectPacket>(allocator);
     packetConnect->WithSessionExpiryIntervalSec(SESSION_EXPIRY_INTERVAL_SEC);
     mqtt5Options.WithConnectOptions(packetConnect);
 
@@ -1612,7 +1620,7 @@ static int s_TestMqtt5NegotiatedSettingsFull(Aws::Crt::Allocator *allocator, voi
     mqtt5Options.WithPort(mqtt5TestVars.m_port_value);
 
     std::shared_ptr<Aws::Crt::Mqtt5::ConnectPacket> packetConnect =
-        std::make_shared<Aws::Crt::Mqtt5::ConnectPacket>(allocator);
+        Aws::Crt::MakeShared<Aws::Crt::Mqtt5::ConnectPacket>(allocator, allocator);
     packetConnect->WithSessionExpiryIntervalSec(SESSION_EXPIRY_INTERVAL_SEC)
         .WithClientId(CLIENT_ID)
         .WithReceiveMaximum(RECEIVE_MAX)
@@ -1672,7 +1680,8 @@ static int s_TestMqtt5NegotiatedSettingsLimit(Aws::Crt::Allocator *allocator, vo
     mqtt5Options.WithHostName(mqtt5TestVars.m_hostname_string);
     mqtt5Options.WithPort(mqtt5TestVars.m_port_value);
 
-    std::shared_ptr<Aws::Crt::Mqtt5::ConnectPacket> packetConnect = std::make_shared<Aws::Crt::Mqtt5::ConnectPacket>();
+    std::shared_ptr<Aws::Crt::Mqtt5::ConnectPacket> packetConnect =
+        Aws::Crt::MakeShared<Aws::Crt::Mqtt5::ConnectPacket>(allocator);
     packetConnect->WithSessionExpiryIntervalSec(SESSION_EXPIRY_INTERVAL_SEC)
         .WithReceiveMaximum(RECEIVE_MAX)
         .WithMaximumPacketSizeBytes(PACKET_MAX)
@@ -1730,7 +1739,8 @@ static int s_TestMqtt5NegotiatedSettingsRejoinAlways(Aws::Crt::Allocator *alloca
     mqtt5Options.WithHostName(mqtt5TestVars.m_hostname_string);
     mqtt5Options.WithPort(mqtt5TestVars.m_port_value);
 
-    std::shared_ptr<Aws::Crt::Mqtt5::ConnectPacket> packetConnect = std::make_shared<Aws::Crt::Mqtt5::ConnectPacket>();
+    std::shared_ptr<Aws::Crt::Mqtt5::ConnectPacket> packetConnect =
+        Aws::Crt::MakeShared<Aws::Crt::Mqtt5::ConnectPacket>(allocator);
     packetConnect->WithSessionExpiryIntervalSec(SESSION_EXPIRY_INTERVAL_SEC);
     packetConnect->WithClientId(Aws::Crt::UUID().ToString());
     mqtt5Options.WithConnectOptions(packetConnect);
@@ -1833,14 +1843,15 @@ static int s_TestMqtt5SubUnsub(Aws::Crt::Allocator *allocator, void *)
     /* Subscribe to test topic */
     Mqtt5::Subscription subscription(TEST_TOPIC, Mqtt5::QOS::AWS_MQTT5_QOS_AT_LEAST_ONCE, allocator);
     subscription.WithNoLocal(false);
-    std::shared_ptr<Mqtt5::SubscribePacket> subscribe = std::make_shared<Mqtt5::SubscribePacket>(allocator);
+    std::shared_ptr<Mqtt5::SubscribePacket> subscribe =
+        Aws::Crt::MakeShared<Mqtt5::SubscribePacket>(allocator, allocator);
     subscribe->WithSubscription(std::move(subscription));
     ASSERT_TRUE(mqtt5Client->Subscribe(subscribe));
 
     /* Publish message 1 to test topic */
     ByteBuf payload = Aws::Crt::ByteBufFromCString("Hello World");
-    std::shared_ptr<Mqtt5::PublishPacket> publish = std::make_shared<Mqtt5::PublishPacket>(
-        TEST_TOPIC, ByteCursorFromByteBuf(payload), Mqtt5::QOS::AWS_MQTT5_QOS_AT_LEAST_ONCE, allocator);
+    std::shared_ptr<Mqtt5::PublishPacket> publish = Aws::Crt::MakeShared<Mqtt5::PublishPacket>(
+        allocator, TEST_TOPIC, ByteCursorFromByteBuf(payload), Mqtt5::QOS::AWS_MQTT5_QOS_AT_LEAST_ONCE, allocator);
     ASSERT_TRUE(mqtt5Client->Publish(publish));
 
     // Sleep and wait for message recieved
@@ -1849,7 +1860,8 @@ static int s_TestMqtt5SubUnsub(Aws::Crt::Allocator *allocator, void *)
     /* Unsubscribe to test topic */
     Vector<String> topics;
     topics.push_back(TEST_TOPIC);
-    std::shared_ptr<Mqtt5::UnsubscribePacket> unsub = std::make_shared<Mqtt5::UnsubscribePacket>(allocator);
+    std::shared_ptr<Mqtt5::UnsubscribePacket> unsub =
+        Aws::Crt::MakeShared<Mqtt5::UnsubscribePacket>(allocator, allocator);
     unsub->WithTopicFilters(topics);
     ASSERT_TRUE(mqtt5Client->Unsubscribe(unsub));
 
@@ -1910,10 +1922,11 @@ static int s_TestMqtt5WillTest(Aws::Crt::Allocator *allocator, void *)
     ASSERT_TRUE(subscriber);
 
     /* Set will for client option */
-    std::shared_ptr<Aws::Crt::Mqtt5::ConnectPacket> packetConnect = std::make_shared<Aws::Crt::Mqtt5::ConnectPacket>();
+    std::shared_ptr<Aws::Crt::Mqtt5::ConnectPacket> packetConnect =
+        Aws::Crt::MakeShared<Aws::Crt::Mqtt5::ConnectPacket>(allocator);
     ByteBuf will_payload = Aws::Crt::ByteBufFromCString("Will Test");
-    std::shared_ptr<Mqtt5::PublishPacket> will = std::make_shared<Mqtt5::PublishPacket>(
-        TEST_TOPIC, ByteCursorFromByteBuf(will_payload), Mqtt5::QOS::AWS_MQTT5_QOS_AT_LEAST_ONCE, allocator);
+    std::shared_ptr<Mqtt5::PublishPacket> will = Aws::Crt::MakeShared<Mqtt5::PublishPacket>(
+        allocator, TEST_TOPIC, ByteCursorFromByteBuf(will_payload), Mqtt5::QOS::AWS_MQTT5_QOS_AT_LEAST_ONCE, allocator);
     packetConnect->WithWill(will);
     mqtt5Options.WithConnectOptions(packetConnect);
 
@@ -1930,7 +1943,8 @@ static int s_TestMqtt5WillTest(Aws::Crt::Allocator *allocator, void *)
 
     /* Subscribe to test topic */
     Mqtt5::Subscription subscription(TEST_TOPIC, Mqtt5::QOS::AWS_MQTT5_QOS_AT_LEAST_ONCE, allocator);
-    std::shared_ptr<Mqtt5::SubscribePacket> subscribe = std::make_shared<Mqtt5::SubscribePacket>(allocator);
+    std::shared_ptr<Mqtt5::SubscribePacket> subscribe =
+        Aws::Crt::MakeShared<Mqtt5::SubscribePacket>(allocator, allocator);
 
     subscribe->WithSubscription(std::move(subscription));
 
@@ -1940,7 +1954,8 @@ static int s_TestMqtt5WillTest(Aws::Crt::Allocator *allocator, void *)
 
     subscribed.get_future().get();
 
-    std::shared_ptr<Mqtt5::DisconnectPacket> disconnect = std::make_shared<Mqtt5::DisconnectPacket>(allocator);
+    std::shared_ptr<Mqtt5::DisconnectPacket> disconnect =
+        Aws::Crt::MakeShared<Mqtt5::DisconnectPacket>(allocator, allocator);
     disconnect->WithReasonCode(AWS_MQTT5_DRC_DISCONNECT_WITH_WILL_MESSAGE);
     ASSERT_TRUE(publisher->Stop(disconnect));
     publisherStoppedPromise.get_future().get();
@@ -1974,16 +1989,10 @@ static int s_TestMqtt5SharedSubscriptionTest(Aws::Crt::Allocator *allocator, voi
     const String TEST_TOPIC = "test/MQTT5_Binding_CPP_" + currentUUID;
     const String sharedTopicFilter = "$share/crttest/test/MQTT5_Binding_CPP_" + currentUUID;
 
-    const int MESSAGE_NUMBER = 10;
-    std::atomic<int> client_messages(0);
-    bool client1_received = false;
-    bool client2_received = false;
-
-    std::vector<int> receivedMessages(MESSAGE_NUMBER);
-    for (int i = 0; i < MESSAGE_NUMBER; i++)
-    {
-        receivedMessages.push_back(0);
-    }
+    static const int MESSAGE_COUNT = 10;
+    std::mutex receivedMessagesLock;
+    std::condition_variable receivedMessagesSignal;
+    std::vector<int> receivedMessages;
 
     Aws::Iot::Mqtt5ClientBuilder *subscribe_builder =
         Aws::Iot::Mqtt5ClientBuilder::NewMqtt5ClientBuilderWithMtlsFromPath(
@@ -1993,39 +2002,29 @@ static int s_TestMqtt5SharedSubscriptionTest(Aws::Crt::Allocator *allocator, voi
             allocator);
     ASSERT_TRUE(subscribe_builder);
 
-    std::promise<void> client_received;
-
-    auto get_on_message_callback = [&](bool &received)
+    auto on_message_callback1 = [&](const PublishReceivedEventData &eventData)
     {
-        return [&](const PublishReceivedEventData &eventData) -> int
+        String topic = eventData.publishPacket->getTopic();
+        if (topic == TEST_TOPIC)
         {
-            String topic = eventData.publishPacket->getTopic();
-            if (topic == TEST_TOPIC)
-            {
-                ByteCursor payload = eventData.publishPacket->getPayload();
-                String message_string = String((const char *)payload.ptr, payload.len);
-                int message_int = atoi(message_string.c_str());
-                ASSERT_TRUE(message_int < MESSAGE_NUMBER);
-                ++receivedMessages[message_int];
-                received = true; // this line has changed
+            ByteCursor payload = eventData.publishPacket->getPayload();
+            String message_string = String((const char *)payload.ptr, payload.len);
+            int message_int = atoi(message_string.c_str());
 
-                bool exchanged = false;
-                int desired = 11;
-                int tested = 10;
-                client_messages++;
-                exchanged = client_messages.compare_exchange_strong(tested, desired);
-                if (exchanged == true)
+            {
+                std::lock_guard<std::mutex> guard(receivedMessagesLock);
+                receivedMessages.push_back(message_int);
+
+                if (receivedMessages.size() == MESSAGE_COUNT)
                 {
-                    client_received.set_value();
+                    receivedMessagesSignal.notify_all();
                 }
             }
-            return 0;
-        };
+        }
     };
-    auto onMessage_client1 = get_on_message_callback(client1_received);
-    auto onMessage_client2 = get_on_message_callback(client2_received);
+    auto on_message_callback2 = on_message_callback1;
 
-    subscribe_builder->WithPublishReceivedCallback(onMessage_client1);
+    subscribe_builder->WithPublishReceivedCallback(on_message_callback1);
 
     Aws::Iot::Mqtt5ClientBuilder *subscribe_builder2 =
         Aws::Iot::Mqtt5ClientBuilder::NewMqtt5ClientBuilderWithMtlsFromPath(
@@ -2034,8 +2033,7 @@ static int s_TestMqtt5SharedSubscriptionTest(Aws::Crt::Allocator *allocator, voi
             mqtt5TestVars.m_private_key_path_string.c_str(),
             allocator);
     ASSERT_TRUE(subscribe_builder2);
-
-    subscribe_builder2->WithPublishReceivedCallback(onMessage_client2);
+    subscribe_builder2->WithPublishReceivedCallback(on_message_callback2);
 
     Aws::Iot::Mqtt5ClientBuilder *publish_builder = Aws::Iot::Mqtt5ClientBuilder::NewMqtt5ClientBuilderWithMtlsFromPath(
         mqtt5TestVars.m_hostname_string,
@@ -2053,7 +2051,8 @@ static int s_TestMqtt5SharedSubscriptionTest(Aws::Crt::Allocator *allocator, voi
     std::promise<bool> connectionPromise3;
     std::promise<void> stoppedPromise3;
 
-    std::shared_ptr<Aws::Crt::Mqtt5::ConnectPacket> packetConnect = std::make_shared<Aws::Crt::Mqtt5::ConnectPacket>();
+    std::shared_ptr<Aws::Crt::Mqtt5::ConnectPacket> packetConnect =
+        Aws::Crt::MakeShared<Aws::Crt::Mqtt5::ConnectPacket>(allocator);
 
     /* first subscriber */
     /* set a different client id so we are not disconnected from the server */
@@ -2091,12 +2090,14 @@ static int s_TestMqtt5SharedSubscriptionTest(Aws::Crt::Allocator *allocator, voi
 
     /* Subscribe to test topic */
     Mqtt5::Subscription subscription(sharedTopicFilter, Mqtt5::QOS::AWS_MQTT5_QOS_AT_MOST_ONCE, allocator);
-    std::shared_ptr<Mqtt5::SubscribePacket> subscribe = std::make_shared<Mqtt5::SubscribePacket>(allocator);
+    std::shared_ptr<Mqtt5::SubscribePacket> subscribe =
+        Aws::Crt::MakeShared<Mqtt5::SubscribePacket>(allocator, allocator);
     subscribe->WithSubscription(std::move(subscription));
 
     /* Subscribe to test topic */
     Mqtt5::Subscription subscription2(sharedTopicFilter, Mqtt5::QOS::AWS_MQTT5_QOS_AT_MOST_ONCE, allocator);
-    std::shared_ptr<Mqtt5::SubscribePacket> subscribe2 = std::make_shared<Mqtt5::SubscribePacket>(allocator);
+    std::shared_ptr<Mqtt5::SubscribePacket> subscribe2 =
+        Aws::Crt::MakeShared<Mqtt5::SubscribePacket>(allocator, allocator);
     subscribe2->WithSubscription(std::move(subscription2));
 
     std::promise<void> suback;
@@ -2113,41 +2114,27 @@ static int s_TestMqtt5SharedSubscriptionTest(Aws::Crt::Allocator *allocator, voi
     suback.get_future().wait();
 
     /* Publish message 10 to test topic */
-    for (int i = 0; i < MESSAGE_NUMBER; i++)
+    for (int i = 0; i < MESSAGE_COUNT; i++)
     {
         std::string payload = std::to_string(i);
-        std::shared_ptr<Mqtt5::PublishPacket> publish = std::make_shared<Mqtt5::PublishPacket>(
-            TEST_TOPIC, ByteCursorFromCString(payload.c_str()), Mqtt5::QOS::AWS_MQTT5_QOS_AT_LEAST_ONCE, allocator);
+        std::shared_ptr<Mqtt5::PublishPacket> publish = Aws::Crt::MakeShared<Mqtt5::PublishPacket>(
+            allocator,
+            TEST_TOPIC,
+            ByteCursorFromCString(payload.c_str()),
+            Mqtt5::QOS::AWS_MQTT5_QOS_AT_LEAST_ONCE,
+            allocator);
         ASSERT_TRUE(mqtt5Publisher->Publish(publish));
     }
 
     /* Wait for all packets to be received on both clients */
-    client_received.get_future().wait();
+    std::unique_lock<std::mutex> receivedLock(receivedMessagesLock);
+    receivedMessagesSignal.wait(receivedLock, [&]() { return receivedMessages.size() == MESSAGE_COUNT; });
 
-    /* Unsubscribe from the topic from both clients*/
-    Vector<String> unsubList;
-    unsubList.push_back(TEST_TOPIC);
-    std::shared_ptr<Mqtt5::UnsubscribePacket> unsubscribe_client1 =
-        std::make_shared<Mqtt5::UnsubscribePacket>(allocator);
-    unsubscribe_client1->WithTopicFilters(unsubList);
-    ASSERT_TRUE(mqtt5Client->Unsubscribe(unsubscribe_client1));
-
-    std::shared_ptr<Mqtt5::UnsubscribePacket> unsubscribe_client2 =
-        std::make_shared<Mqtt5::UnsubscribePacket>(allocator);
-    unsubscribe_client2->WithTopicFilters(unsubList);
-    ASSERT_TRUE(mqtt5Client2->Unsubscribe(unsubscribe_client2));
-
-    /* make sure all messages are received */
-    ASSERT_INT_EQUALS(MESSAGE_NUMBER + 1, client_messages); /* We are adding one at the end, so 10 messages received */
-
-    /* makes sure both clients received at least one message */
-    ASSERT_TRUE(client1_received);
-    ASSERT_TRUE(client2_received);
-
+    std::sort(receivedMessages.begin(), receivedMessages.end());
     /* make sure all messages are received  with no duplicates*/
-    for (int i = 0; i < MESSAGE_NUMBER; i++)
+    for (int i = 0; i < MESSAGE_COUNT; i++)
     {
-        ASSERT_TRUE(receivedMessages[i] > 0);
+        ASSERT_INT_EQUALS(i, receivedMessages[i]);
     }
     /* Stop all clients */
     ASSERT_TRUE(mqtt5Client->Stop());
@@ -2203,8 +2190,8 @@ static int s_TestMqtt5NullPublish(Aws::Crt::Allocator *allocator, void *)
 
     // Invalid publish packet with empty topic
     ByteBuf payload = Aws::Crt::ByteBufFromCString("Mqtt5 Null Publish Test");
-    std::shared_ptr<Mqtt5::PublishPacket> publish = std::make_shared<Mqtt5::PublishPacket>(
-        "", ByteCursorFromByteBuf(payload), Mqtt5::QOS::AWS_MQTT5_QOS_AT_LEAST_ONCE, allocator);
+    std::shared_ptr<Mqtt5::PublishPacket> publish = Aws::Crt::MakeShared<Mqtt5::PublishPacket>(
+        allocator, "", ByteCursorFromByteBuf(payload), Mqtt5::QOS::AWS_MQTT5_QOS_AT_LEAST_ONCE, allocator);
 
     /* Publish message 1 to test topic */
     ASSERT_FALSE(mqtt5Client->Publish(publish));
@@ -2248,7 +2235,8 @@ static int s_TestMqtt5NullSubscribe(Aws::Crt::Allocator *allocator, void *)
     /* Subscribe to empty subscribe packet*/
     Vector<Mqtt5::Subscription> subscriptionList;
     subscriptionList.clear();
-    std::shared_ptr<Mqtt5::SubscribePacket> subscribe = std::make_shared<Mqtt5::SubscribePacket>(allocator);
+    std::shared_ptr<Mqtt5::SubscribePacket> subscribe =
+        Aws::Crt::MakeShared<Mqtt5::SubscribePacket>(allocator, allocator);
     subscribe->WithSubscriptions(subscriptionList);
     ASSERT_FALSE(mqtt5Client->Subscribe(subscribe));
 
@@ -2292,7 +2280,8 @@ static int s_TestMqtt5NullUnsubscribe(Aws::Crt::Allocator *allocator, void *)
     /* Subscribe to empty subscribe packet*/
     Vector<String> unsubList;
     unsubList.clear();
-    std::shared_ptr<Mqtt5::UnsubscribePacket> unsubscribe = std::make_shared<Mqtt5::UnsubscribePacket>(allocator);
+    std::shared_ptr<Mqtt5::UnsubscribePacket> unsubscribe =
+        Aws::Crt::MakeShared<Mqtt5::UnsubscribePacket>(allocator, allocator);
     unsubscribe->WithTopicFilters(unsubList);
     ASSERT_FALSE(mqtt5Client->Unsubscribe(unsubscribe));
 
@@ -2319,7 +2308,8 @@ static int s_TestMqtt5ReuseUnsubscribePacket(Aws::Crt::Allocator *allocator, voi
     ASSERT_TRUE(mqtt5Client);
 
     Vector<String> unsubList{TEST_TOPIC};
-    std::shared_ptr<Mqtt5::UnsubscribePacket> unsubscribe = std::make_shared<Mqtt5::UnsubscribePacket>(allocator);
+    std::shared_ptr<Mqtt5::UnsubscribePacket> unsubscribe =
+        Aws::Crt::MakeShared<Mqtt5::UnsubscribePacket>(allocator, allocator);
     unsubscribe->WithTopicFilters(unsubList);
     ASSERT_TRUE(mqtt5Client->Unsubscribe(unsubscribe));
     /* Unsubscribe once again using the same UnsubscribePacket. */
@@ -2399,7 +2389,7 @@ static int s_TestMqtt5QoS1SubPub(Aws::Crt::Allocator *allocator, void *)
 
     /* Subscribe to test topic */
     Mqtt5::Subscription subscription(TEST_TOPIC, Mqtt5::QOS::AWS_MQTT5_QOS_AT_LEAST_ONCE, allocator);
-    std::shared_ptr<Mqtt5::SubscribePacket> subscribe = std::make_shared<Mqtt5::SubscribePacket>(allocator);
+    std::shared_ptr<Mqtt5::SubscribePacket> subscribe = Aws::Crt::MakeShared<Mqtt5::SubscribePacket>(allocator);
     subscribe->WithSubscription(std::move(subscription));
 
     std::promise<void> subscribed;
@@ -2412,8 +2402,12 @@ static int s_TestMqtt5QoS1SubPub(Aws::Crt::Allocator *allocator, void *)
     for (int i = 0; i < MESSAGE_NUMBER; i++)
     {
         std::string payload = std::to_string(i);
-        std::shared_ptr<Mqtt5::PublishPacket> publish = std::make_shared<Mqtt5::PublishPacket>(
-            TEST_TOPIC, ByteCursorFromCString(payload.c_str()), Mqtt5::QOS::AWS_MQTT5_QOS_AT_LEAST_ONCE, allocator);
+        std::shared_ptr<Mqtt5::PublishPacket> publish = Aws::Crt::MakeShared<Mqtt5::PublishPacket>(
+            allocator,
+            TEST_TOPIC,
+            ByteCursorFromCString(payload.c_str()),
+            Mqtt5::QOS::AWS_MQTT5_QOS_AT_LEAST_ONCE,
+            allocator);
         ASSERT_TRUE(publisher->Publish(publish));
     }
 
@@ -2510,7 +2504,8 @@ static int s_TestMqtt5RetainSetAndClear(Aws::Crt::Allocator *allocator, void *)
     // 1. client1 start and publish a retian message
     ASSERT_TRUE(mqtt5Client1->Start());
     ASSERT_TRUE(connection1Promise.get_future().get());
-    std::shared_ptr<Mqtt5::PublishPacket> setRetainPacket = std::make_shared<Mqtt5::PublishPacket>(allocator);
+    std::shared_ptr<Mqtt5::PublishPacket> setRetainPacket =
+        Aws::Crt::MakeShared<Mqtt5::PublishPacket>(allocator, allocator);
     setRetainPacket->WithTopic(TEST_TOPIC).WithPayload(ByteCursorFromString(RETAIN_MESSAGE)).WithRetain(true);
     ASSERT_TRUE(mqtt5Client1->Publish(setRetainPacket));
 
@@ -2519,7 +2514,8 @@ static int s_TestMqtt5RetainSetAndClear(Aws::Crt::Allocator *allocator, void *)
     ASSERT_TRUE(connection2Promise.get_future().get());
     // 3. client2 subscribe to retain topic
     Mqtt5::Subscription subscription(TEST_TOPIC, Mqtt5::QOS::AWS_MQTT5_QOS_AT_LEAST_ONCE, allocator);
-    std::shared_ptr<Mqtt5::SubscribePacket> subscribe = std::make_shared<Mqtt5::SubscribePacket>(allocator);
+    std::shared_ptr<Mqtt5::SubscribePacket> subscribe =
+        Aws::Crt::MakeShared<Mqtt5::SubscribePacket>(allocator, allocator);
     subscribe->WithSubscription(std::move(subscription));
     ASSERT_TRUE(mqtt5Client2->Subscribe(subscribe));
 
@@ -2530,7 +2526,8 @@ static int s_TestMqtt5RetainSetAndClear(Aws::Crt::Allocator *allocator, void *)
     stopped2Promise.get_future().get();
 
     // 4. client1 reset retian message
-    std::shared_ptr<Mqtt5::PublishPacket> clearRetainPacket = std::make_shared<Mqtt5::PublishPacket>(allocator);
+    std::shared_ptr<Mqtt5::PublishPacket> clearRetainPacket =
+        Aws::Crt::MakeShared<Mqtt5::PublishPacket>(allocator, allocator);
     clearRetainPacket->WithTopic(TEST_TOPIC).WithRetain(true);
     ASSERT_TRUE(mqtt5Client1->Publish(clearRetainPacket));
 
@@ -2589,7 +2586,8 @@ static int s_TestMqtt5InterruptSub(Aws::Crt::Allocator *allocator, void *)
     const Aws::Crt::String TEST_TOPIC = "test/s_TestMqtt5InterruptSub" + Aws::Crt::UUID().ToString();
     /* Subscribe to test topic */
     Mqtt5::Subscription subscription(TEST_TOPIC, Mqtt5::QOS::AWS_MQTT5_QOS_AT_MOST_ONCE, allocator);
-    std::shared_ptr<Mqtt5::SubscribePacket> subscribe = std::make_shared<Mqtt5::SubscribePacket>(allocator);
+    std::shared_ptr<Mqtt5::SubscribePacket> subscribe =
+        Aws::Crt::MakeShared<Mqtt5::SubscribePacket>(allocator, allocator);
     subscribe->WithSubscription(std::move(subscription));
     ASSERT_TRUE(mqtt5Client->Subscribe(subscribe));
 
@@ -2638,7 +2636,8 @@ static int s_TestMqtt5InterruptUnsub(Aws::Crt::Allocator *allocator, void *)
     /* Unsub from topic*/
     Vector<String> topics;
     topics.push_back(TEST_TOPIC);
-    std::shared_ptr<Mqtt5::UnsubscribePacket> unsub = std::make_shared<Mqtt5::UnsubscribePacket>(allocator);
+    std::shared_ptr<Mqtt5::UnsubscribePacket> unsub =
+        Aws::Crt::MakeShared<Mqtt5::UnsubscribePacket>(allocator, allocator);
     unsub->WithTopicFilters(topics);
     ASSERT_TRUE(mqtt5Client->Unsubscribe(unsub));
 
@@ -2687,8 +2686,8 @@ static int s_TestMqtt5InterruptPublishQoS1(Aws::Crt::Allocator *allocator, void 
 
     /* Publish QOS1 to test topic */
     ByteBuf payload = Aws::Crt::ByteBufFromCString("Hello World");
-    std::shared_ptr<Mqtt5::PublishPacket> publish = std::make_shared<Mqtt5::PublishPacket>(
-        TEST_TOPIC, ByteCursorFromByteBuf(payload), Mqtt5::QOS::AWS_MQTT5_QOS_AT_LEAST_ONCE, allocator);
+    std::shared_ptr<Mqtt5::PublishPacket> publish = Aws::Crt::MakeShared<Mqtt5::PublishPacket>(
+        allocator, TEST_TOPIC, ByteCursorFromByteBuf(payload), Mqtt5::QOS::AWS_MQTT5_QOS_AT_LEAST_ONCE, allocator);
     ASSERT_TRUE(mqtt5Client->Publish(publish));
 
     /* Stop immediately */
@@ -2742,8 +2741,8 @@ static int s_TestMqtt5OperationStatisticsSimple(Aws::Crt::Allocator *allocator, 
 
     /* Publish message 1 to test topic */
     ByteBuf payload = Aws::Crt::ByteBufFromCString("Hello World");
-    std::shared_ptr<Mqtt5::PublishPacket> publish = std::make_shared<Mqtt5::PublishPacket>(
-        TEST_TOPIC, ByteCursorFromByteBuf(payload), Mqtt5::QOS::AWS_MQTT5_QOS_AT_LEAST_ONCE, allocator);
+    std::shared_ptr<Mqtt5::PublishPacket> publish = Aws::Crt::MakeShared<Mqtt5::PublishPacket>(
+        allocator, TEST_TOPIC, ByteCursorFromByteBuf(payload), Mqtt5::QOS::AWS_MQTT5_QOS_AT_LEAST_ONCE, allocator);
     ASSERT_TRUE(mqtt5Client->Publish(publish));
 
     // Sleep and wait for message received
@@ -2883,10 +2882,11 @@ static int s_TestMqtt5to3AdapterNewClientFull(Aws::Crt::Allocator *allocator, vo
     // Setup will
     const Aws::Crt::String TEST_TOPIC = "test/MQTT5_Binding_CPP/s_TestMqtt5NewClientFull";
     ByteBuf will_payload = Aws::Crt::ByteBufFromCString("Will Test");
-    std::shared_ptr<Mqtt5::PublishPacket> will = std::make_shared<Mqtt5::PublishPacket>(
-        TEST_TOPIC, ByteCursorFromByteBuf(will_payload), Mqtt5::QOS::AWS_MQTT5_QOS_AT_LEAST_ONCE, allocator);
+    std::shared_ptr<Mqtt5::PublishPacket> will = Aws::Crt::MakeShared<Mqtt5::PublishPacket>(
+        allocator, TEST_TOPIC, ByteCursorFromByteBuf(will_payload), Mqtt5::QOS::AWS_MQTT5_QOS_AT_LEAST_ONCE, allocator);
 
-    std::shared_ptr<Aws::Crt::Mqtt5::ConnectPacket> packetConnect = std::make_shared<Aws::Crt::Mqtt5::ConnectPacket>();
+    std::shared_ptr<Aws::Crt::Mqtt5::ConnectPacket> packetConnect =
+        Aws::Crt::MakeShared<Aws::Crt::Mqtt5::ConnectPacket>(allocator);
     packetConnect->WithClientId("s_TestMqtt5DirectConnectionFull" + Aws::Crt::UUID().ToString())
         .WithKeepAliveIntervalSec(1000)
         .WithMaximumPacketSizeBytes(1000L)
